@@ -64,9 +64,9 @@ class RhasspyClient:
     async def set_sentences(self, sentences: Dict[str, List[str]]) -> str:
         """POST sentences.ini to server from sentences grouped by intent."""
         with io.StringIO() as sentences_file:
-            for intent_name, intent_sentences in sentences.items():
+            for intent_name in sorted(sentences):
                 print(f"[{intent_name}]", file=sentences_file)
-                for sentence in intent_sentences:
+                for sentence in sorted(sentences[intent_name]):
                     if sentence.startswith("["):
                         # Escape initial [
                         sentence = "\\" + sentence
@@ -105,8 +105,12 @@ class RhasspyClient:
     async def set_custom_words(self, pronunciations: Dict[str, Set[str]]) -> str:
         """POST custom words to server from pronunciations grouped by word."""
         with io.StringIO() as custom_words_file:
-            for word, word_pronunciations in pronunciations.items():
-                for pronunciation in word_pronunciations:
+            for word in sorted(pronunciations):
+                word_pronunciations = pronunciations[word]
+                if isinstance(word_pronunciations, str):
+                    word_pronunciations = [word_pronunciations]
+
+                for pronunciation in sorted(word_pronunciations):
                     print(word, pronunciation, file=custom_words_file)
 
             # POST to server
