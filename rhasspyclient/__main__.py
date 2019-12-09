@@ -62,6 +62,13 @@ async def main():
     )
     text_to_intent_parser.set_defaults(func=text_to_intent)
 
+    # text-to-speech
+    text_to_speech_parser = sub_parsers.add_parser(
+        "text-to-speech", help="Generate speech from text"
+    )
+    text_to_speech_parser.add_argument("text", nargs="*", help="Sentences to speak")
+    text_to_speech_parser.set_defaults(func=text_to_speech)
+
     # Parse args
     args = parser.parse_args()
 
@@ -115,6 +122,16 @@ async def text_to_intent(args, client):
         result = await client.text_to_intent(sentence, handle_intent=args.handle)
         print(json.dumps(result))
 
+
+async def text_to_speech(args, client):
+    if len(args.text) > 0:
+        sentences = args.text
+    else:
+        sentences = sys.stdin
+
+    for sentence in sentences:
+        result = await client.text_to_speech(sentence)
+        print(result)
 
 # -----------------------------------------------------------------------------
 
