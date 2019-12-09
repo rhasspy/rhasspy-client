@@ -26,6 +26,10 @@ async def main():
     sub_parsers.required = True
     sub_parsers.dest = "command"
 
+    # restart
+    restart_parser = sub_parsers.add_parser("restart", help="Restart the Rhasspy server")
+    restart_parser.set_defaults(func=restart)
+
     # train
     train_parser = sub_parsers.add_parser("train", help="Train Rhasspy profile")
     train_parser.add_argument(
@@ -74,6 +78,11 @@ async def main():
 
 
 # -----------------------------------------------------------------------------
+
+
+async def restart(args, client):
+    result = await client.restart()
+    print(result)
 
 
 async def train(args, client):
