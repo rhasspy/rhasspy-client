@@ -6,6 +6,7 @@ https://rhasspy.readthedocs.io/
 """
 import io
 from collections import defaultdict
+import configparser
 import re
 from typing import Dict, List, Set, Optional, Any, Tuple
 from urllib.parse import urljoin
@@ -54,10 +55,10 @@ class RhasspyClient:
                 for key, value in parser[intent_name]:
                     if value is None:
                         # Sentence
-                        sentences[intent].append(value)
+                        sentences[intent_name].append(value)
                     else:
                         # Rule
-                        sentences[intent].append(f"{key} = {value}")
+                        sentences[intent_name].append(f"{key} = {value}")
 
             return sentences
 
