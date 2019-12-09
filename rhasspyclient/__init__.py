@@ -165,14 +165,17 @@ class RhasspyClient:
     # -------------------------------------------------------------------------
 
     async def text_to_speech(
-        self, text: str
+        self, text: str, repeat: bool = False
     ) -> Dict[str, Any]:
         """
         Generate speech from text.
+
+        If repeat is True, Rhasspy wil repeat the last spoken sentence.
         """
+        params = {"repeat": str(repeat)}
 
         async with self.session.post(
-            self.tts_url, data=text
+            self.tts_url, params=params, data=text
         ) as response:
             response.raise_for_status()
             return await response.text()

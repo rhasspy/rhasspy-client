@@ -67,6 +67,9 @@ async def main():
         "text-to-speech", help="Generate speech from text"
     )
     text_to_speech_parser.add_argument("text", nargs="*", help="Sentences to speak")
+    text_to_speech_parser.add_argument(
+        "--repeat", action="store_true", help="Repeat last sentence"
+    )
     text_to_speech_parser.set_defaults(func=text_to_speech)
 
     # Parse args
@@ -130,7 +133,7 @@ async def text_to_speech(args, client):
         sentences = sys.stdin
 
     for sentence in sentences:
-        result = await client.text_to_speech(sentence)
+        result = await client.text_to_speech(sentence, repeat=args.repeat)
         print(result)
 
 # -----------------------------------------------------------------------------
