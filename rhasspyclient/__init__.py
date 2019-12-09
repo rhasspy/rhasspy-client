@@ -8,7 +8,7 @@ import io
 from collections import defaultdict
 import configparser
 import re
-from typing import Dict, List, Set, Optional, Any, Tuple
+from typing import Dict, List, Set, Any, Tuple
 from urllib.parse import urljoin
 
 import aiohttp
