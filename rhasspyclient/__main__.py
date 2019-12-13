@@ -26,6 +26,10 @@ async def main():
     sub_parsers.required = True
     sub_parsers.dest = "command"
 
+    # version
+    version_parser = sub_parsers.add_parser("version", help="Get Rhasspy version")
+    version_parser.set_defaults(func=version)
+
     # restart
     restart_parser = sub_parsers.add_parser("restart", help="Restart the Rhasspy server")
     restart_parser.set_defaults(func=restart)
@@ -78,6 +82,11 @@ async def main():
 
 
 # -----------------------------------------------------------------------------
+
+
+async def version(args, client):
+    result = await client.version()
+    print(result)
 
 
 async def restart(args, client):
