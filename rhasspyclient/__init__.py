@@ -34,6 +34,7 @@ class RhasspyClient:
         self.wakeup_url = urljoin(self.api_url, "listen-for-command")
         self.profile_url = urljoin(self.api_url, "profile")
         self.lookup_url = urljoin(self.api_url, "lookup")
+        self.version_url = urljoin(self.api_url, "version")
 
         self.session = session
         assert self.session is not None, "ClientSession is required"
@@ -209,6 +210,14 @@ class RhasspyClient:
             response.raise_for_status()
             return await response.text()
 
+    # -------------------------------------------------------------------------
+
+    async def version(self) -> str:
+        """Get Rhasspy version."""
+        async with self.session.get(self.version_url) as response:
+            response.raise_for_status()
+            return await response.text()
+            
     # -------------------------------------------------------------------------
 
     async def wakeup_and_wait(self, handle_intent=False) -> Dict[str, Any]:
