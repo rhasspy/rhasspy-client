@@ -12,6 +12,9 @@ from urllib.parse import urljoin
 
 import aiohttp
 
+from rhasspyclient.speech import Transcription, TranscriptionResult
+from rhasspyclient.train import TrainingComplete, TrainingResult
+
 
 class RhasspyClient:
     """Client object for remote Rhasspy server."""
@@ -122,26 +125,36 @@ class RhasspyClient:
 
     # -------------------------------------------------------------------------
 
-    async def train(self, no_cache=False) -> str:
+    async def train(self, no_cache=False) -> TrainingComplete:
         """Train Rhasspy profile. Delete doit database when no_cache is True."""
         params = {}
         if no_cache:
             params["no_cache"] = "true"
 
         async with self.session.post(self.train_url, params=params) as response:
-            response.raise_for_status()
-            return await response.text()
+            text = await response.text()
+
+            try:
+                response.raise_for_status()
+                return TrainingComplete(result=TrainingResult.SUCCESS)
+            except Exception:
+                return TrainingComplete(result=TrainingResult.FAILURE, errors=text)
 
     # -------------------------------------------------------------------------
 
-    async def speech_to_text(self, wav_data: bytes) -> str:
+    async def speech_to_text(self, wav_data: bytes) -> Transcription:
         """Transcribe WAV audio."""
         headers = {"Content-Tyoe": "audio/wav"}
         async with self.session.post(
             self.speech_url, headers=headers, data=wav_data
         ) as response:
-            response.raise_for_status()
-            return await response.text()
+            text = await response.text()
+
+            try:
+                response.raise_for_status()
+                assert text
+            except Exception:
+                return Transcription(result=TranscriptionResult.FAILURE)
 
     # -------------------------------------------------------------------------
 

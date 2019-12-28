@@ -8,8 +8,11 @@ import asyncio
 import argparse
 import json
 import sys
+from typing import TextIO, Any
 
 import aiohttp
+import attr
+import jsonlines
 
 from rhasspyclient import RhasspyClient
 
@@ -27,7 +30,7 @@ async def main():
     sub_parsers.dest = "command"
 
     # train
-    train_parser = sub_parsers.add_parser("train", help="Train Rhasspy profile")
+    train_parser = sub_parsers.add_parser("train-profile", help="Train Rhasspy profile")
     train_parser.add_argument(
         "--no-cache", action="store_true", help="Clear cache before training"
     )
@@ -78,7 +81,7 @@ async def main():
 
 async def train(args, client):
     result = await client.train(no_cache=args.no_cache)
-    print(result)
+    print_json(attr.asdict(result))
 
 
 async def speech_to_text(args, client):
@@ -118,5 +121,16 @@ async def text_to_intent(args, client):
 
 # -----------------------------------------------------------------------------
 
+
+def print_json(obj: Any, out_file: TextIO = sys.stdout) -> None:
+    with jsonlines.Writer(out_file) as writer:
+        writer.write(obj)
+
+    out_file.flush()
+
+
+# -----------------------------------------------------------------------------
+
 if __name__ == "__main__":
-    asyncio.run(main())
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(main())

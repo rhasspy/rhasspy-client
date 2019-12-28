@@ -5,13 +5,19 @@ Basic client library for talking to a remote [Rhasspy](https://rhasspy.readthedo
 ## Example
 
 ```python
+import asyncio
+
 import aiohttp
 from rhasspyclient import RhasspyClient
 
-async with aiohttp.ClientSession() as session:
-    client = RhasspyClient("http://localhost:12101/api", session)
-    result = await client.text_to_intent("what time is it")
-    print(result)
+async def main():
+    async with aiohttp.ClientSession() as session:
+        client = RhasspyClient("http://localhost:12101/api", session)
+        result = await client.text_to_intent("what time is it")
+        print(result)
+        
+loop = asyncio.get_event_loop()
+loop.run_until_complete(main())
 ```
 
 ## Module CLI
