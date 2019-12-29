@@ -4,16 +4,22 @@ Python library for interacting with a Rhasspy server over HTTP.
 For more information on Rhasspy, please see:
 https://rhasspy.readthedocs.io/
 """
+import configparser
 import io
-from collections import defaultdict
+import logging
 import re
-from typing import Dict, List, Set, Optional, Any, Tuple
+from collections import defaultdict
+from typing import Any, Dict, List, Set, Tuple
 from urllib.parse import urljoin
 
 import aiohttp
 
 from rhasspyclient.speech import Transcription, TranscriptionResult
 from rhasspyclient.train import TrainingComplete, TrainingResult
+
+_LOGGER = logging.getLogger(__name__)
+
+# -----------------------------------------------------------------------------
 
 
 class RhasspyClient:
@@ -29,12 +35,14 @@ class RhasspyClient:
         self.custom_words_url = urljoin(self.api_url, "custom-words")
         self.slots_url = urljoin(self.api_url, "slots")
         self.train_url = urljoin(self.api_url, "train")
-        self.speech_url = urljoin(self.api_url, "speech-to-text")
+        self.stt_url = urljoin(self.api_url, "speech-to-text")
         self.intent_url = urljoin(self.api_url, "text-to-intent")
+        self.tts_url = urljoin(self.api_url, "text-to-speech")
         self.restart_url = urljoin(self.api_url, "restart")
         self.wakeup_url = urljoin(self.api_url, "listen-for-command")
         self.profile_url = urljoin(self.api_url, "profile")
         self.lookup_url = urljoin(self.api_url, "lookup")
+        self.version_url = urljoin(self.api_url, "version")
 
         self.session = session
         assert self.session is not None, "ClientSession is required"
@@ -57,10 +65,10 @@ class RhasspyClient:
                 for key, value in parser[intent_name]:
                     if value is None:
                         # Sentence
-                        sentences[intent].append(value)
+                        sentences[intent_name].append(value)
                     else:
                         # Rule
-                        sentences[intent].append(f"{key} = {value}")
+                        sentences[intent_name].append(f"{key} = {value}")
 
             return sentences
 
@@ -138,6 +146,7 @@ class RhasspyClient:
                 response.raise_for_status()
                 return TrainingComplete(result=TrainingResult.SUCCESS)
             except Exception:
+                _LOGGER.exception("train")
                 return TrainingComplete(result=TrainingResult.FAILURE, errors=text)
 
     # -------------------------------------------------------------------------
@@ -146,14 +155,16 @@ class RhasspyClient:
         """Transcribe WAV audio."""
         headers = {"Content-Tyoe": "audio/wav"}
         async with self.session.post(
-            self.speech_url, headers=headers, data=wav_data
+            self.stt_url, headers=headers, data=wav_data
         ) as response:
             text = await response.text()
 
             try:
                 response.raise_for_status()
                 assert text
+                return Transcription(result=TranscriptionResult.SUCCESS, text=text)
             except Exception:
+                _LOGGER.exception("speech_to_text")
                 return Transcription(result=TranscriptionResult.FAILURE)
 
     # -------------------------------------------------------------------------
@@ -173,6 +184,22 @@ class RhasspyClient:
         ) as response:
             response.raise_for_status()
             return await response.json()
+
+    # -------------------------------------------------------------------------
+
+    async def text_to_speech(self, text: str, repeat: bool = False) -> Dict[str, Any]:
+        """
+        Generate speech from text.
+
+        If repeat is True, Rhasspy wil repeat the last spoken sentence.
+        """
+        params = {"repeat": str(repeat)}
+
+        async with self.session.post(
+            self.tts_url, params=params, data=text
+        ) as response:
+            response.raise_for_status()
+            return await response.text()
 
     # -------------------------------------------------------------------------
 
@@ -199,6 +226,14 @@ class RhasspyClient:
     async def restart(self) -> str:
         """Restart Rhasspy server."""
         async with self.session.post(self.restart_url) as response:
+            response.raise_for_status()
+            return await response.text()
+
+    # -------------------------------------------------------------------------
+
+    async def version(self) -> str:
+        """Get Rhasspy version."""
+        async with self.session.get(self.version_url) as response:
             response.raise_for_status()
             return await response.text()
 
@@ -255,7 +290,7 @@ class RhasspyClient:
         """Stream raw 16-bit 16Khz mono audio to server. Return transcription."""
         params = {"noheader": "true"}
         async with self.session.post(
-            self.speech_url, params=params, data=raw_stream
+            self.stt_url, params=params, data=raw_stream
         ) as response:
             response.raise_for_status()
             return await response.text()

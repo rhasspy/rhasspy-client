@@ -1,7 +1,6 @@
 """
 Data structures for speech to text.
 """
-from abc import ABC, abstractmethod
 from enum import Enum
 
 import attr

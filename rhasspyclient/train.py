@@ -1,7 +1,6 @@
 """
 Data structures for training.
 """
-from abc import ABC, abstractmethod
 from enum import Enum
 
 import attr
@@ -16,5 +15,7 @@ class TrainingResult(str, Enum):
 
 @attr.s
 class TrainingComplete:
+    """Return value from profile training"""
+
     result: TrainingResult = attr.ib()
     errors: str = attr.ib(default="")
