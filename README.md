@@ -1,5 +1,10 @@
 # Rhasspy Client
 
+[![Continous Integration](https://github.com/rhasspy/rhasspy-client/workflows/Tests/badge.svg)](https://github.com/rhasspy/rhasspy-client/actions)
+[![PyPI package version](https://img.shields.io/pypi/v/rhasspy-client.svg)](https://pypi.org/project/rhasspy-client)
+[![Python versions](https://img.shields.io/pypi/pyversions/rhasspy-client.svg)](https://www.python.org)
+[![GitHub license](https://img.shields.io/github/license/rhasspy/rhasspy-client.svg)](https://github.com/rhasspy/rhasspy-client/blob/master/LICENSE)
+
 Basic client library for talking to a remote [Rhasspy](https://rhasspy.readthedocs.io) server. Uses [aiohttp](https://aiohttp.readthedocs.io/en/stable/).
 
 ## Example
