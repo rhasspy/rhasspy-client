@@ -20,7 +20,7 @@ async def main():
         client = RhasspyClient("http://localhost:12101/api", session)
         result = await client.text_to_intent("what time is it")
         print(result)
-        
+
 loop = asyncio.get_event_loop()
 loop.run_until_complete(main())
 ```
