@@ -56,7 +56,9 @@ class RhasspyClient:
             parser = configparser.ConfigParser(
                 allow_no_value=True, strict=False, delimiters=["="]
             )
-            parser.optionxform = str  # case sensitive
+
+            # case sensitive
+            parser.optionxform = str  # type: ignore
             parser.read_string(await response.text())
 
             # Group sentences by intent
@@ -101,8 +103,8 @@ class RhasspyClient:
         async with self.session.get(self.custom_words_url) as response:
             # Group pronunciations by word
             pronunciations: Dict[str, Set[str]] = defaultdict(set)
-            async for line in response.content:
-                line = line.decode().strip()
+            async for line_bytes in response.content:
+                line = line_bytes.decode().strip()
 
                 # Skip blank lines
                 if len(line) == 0:
@@ -187,7 +189,7 @@ class RhasspyClient:
 
     # -------------------------------------------------------------------------
 
-    async def text_to_speech(self, text: str, repeat: bool = False) -> Dict[str, Any]:
+    async def text_to_speech(self, text: str, repeat: bool = False) -> str:
         """
         Generate speech from text.
 
