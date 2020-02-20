@@ -25,10 +25,9 @@ _LOGGER = logging.getLogger(__name__)
 class RhasspyClient:
     """Client object for remote Rhasspy server."""
 
-    def __init__(self, api_url: str, session: aiohttp.ClientSession):
-        self.api_url = api_url
-        if not self.api_url.endswith("/"):
-            self.api_url += "/"
+    def __init__(self, HOST: str, PORT: str, session: aiohttp.ClientSession):
+        self.api_url = "http://{}:{}/api/".format(HOST, PORT)
+        self.events_url = "ws://{}:{}/api/events/".format(HOST, PORT)
 
         # Construct URLs for end-points
         self.sentences_url = urljoin(self.api_url, "sentences")
@@ -43,6 +42,10 @@ class RhasspyClient:
         self.profile_url = urljoin(self.api_url, "profile")
         self.lookup_url = urljoin(self.api_url, "lookup")
         self.version_url = urljoin(self.api_url, "version")
+
+        self.intent_listen_url = urljoin(self.events_url, 'intent')
+        self.wake_listen_url = urljoin(self.events_url, 'wake')
+        self.speech_listen_url = urljoin(self.events_url, 'text')
 
         self.session = session
         assert self.session is not None, "ClientSession is required"
@@ -296,3 +299,15 @@ class RhasspyClient:
         ) as response:
             response.raise_for_status()
             return await response.text()
+
+
+    # -------------------------------------------------------------------------
+    async def listen_for_intent(self, handler, **handlerargs) -> None:
+        """Given a handler function at startup handles the intents as they arrive"""
+        async with self.session.ws_connect(self.intent_listen_url) as ws:
+            async for msg in ws:
+                if msg.type in (aiohttp.WSMsgType.CLOSED,
+                                aiohttp.WSMsgType.ERROR):
+                    break
+                
+                handler(msg, handlerargs)
