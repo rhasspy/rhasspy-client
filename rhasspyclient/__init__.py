@@ -315,3 +315,23 @@ class RhasspyClient:
                     break
                 
                 handler(msg, handlerargs)
+
+    async def listen_for_speech(self, handler, **handlerargs) -> None:
+        """Given a handler function at startup handles the transcribed text as it arrives"""
+        async with self.session.ws_connect(self.speech_listen_url) as ws:
+            async for msg in ws:
+                if msg.type in (aiohttp.WSMsgType.CLOSED,
+                                aiohttp.WSMsgType.ERROR):
+                    break
+
+                handler(msg, handlerargs)
+
+    async def listen_for_wake(self, handler, **handlerargs) -> None:
+        """Given a handler function at startup, handles when a wakeword is heard"""
+        async with self.session.ws_connect(self.wake_listen_url) as ws:
+            async for msg in ws:
+                if msg.type in (aiohttp.WSMsgType.CLOSED,
+                                aiohttp.WSMsgType.ERROR):
+                    break
+
+                handler(msg, handlerargs)
