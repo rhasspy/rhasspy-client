@@ -26,14 +26,14 @@ class RhasspyClient:
     """Client object for remote Rhasspy server."""
 
     def __init__(
-        self, HOST: str, PORT: str, session: aiohttp.ClientSession, secure: bool = False
+        self, host: str, port: str, session: aiohttp.ClientSession, secure: bool = False
     ):
         if secure:
-            self.api_url = "https://{}:{}/api/".format(HOST, PORT)
-            self.events_url = "wss://{}:{}/api/events/".format(HOST, PORT)
+            self.api_url = "https://{}:{}/api/".format(host, port)
+            self.events_url = "wss://{}:{}/api/events/".format(host, port)
         else:
-            self.api_url = "http://{}:{}/api/".format(HOST, PORT)
-            self.events_url = "ws://{}:{}/api/events/".format(HOST, PORT)
+            self.api_url = "http://{}:{}/api/".format(host, port)
+            self.events_url = "ws://{}:{}/api/events/".format(host, port)
 
         # Construct URLs for end-points
         self.sentences_url = urljoin(self.api_url, "sentences")
