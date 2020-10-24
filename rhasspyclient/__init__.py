@@ -153,11 +153,19 @@ class RhasspyClient:
 
     # -------------------------------------------------------------------------
 
-    async def speech_to_text(self, wav_data: bytes) -> Transcription:
-        """Transcribe WAV audio."""
-        headers = {"Content-Tyoe": "audio/wav"}
+    async def speech_to_text(
+        self, wav_data: bytes, wav_header: bool = True
+    ) -> Transcription:
+        """
+        Transcribe WAV audio.
+
+        If wav_header is False, wav_data is expected to be raw 16-bit 16Khz
+        mono audio without a WAV header.
+        """
+        headers = {"Content-Type": "audio/wav"}
+        params = {"noheader": "true" if not wav_header else "false"}
         async with self.session.post(
-            self.stt_url, headers=headers, data=wav_data
+            self.stt_url, headers=headers, params=params, data=wav_data
         ) as response:
             text = await response.text()
 
