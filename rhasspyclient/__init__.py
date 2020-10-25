@@ -155,7 +155,7 @@ class RhasspyClient:
 
     async def speech_to_text(self, wav_data: bytes) -> Transcription:
         """Transcribe WAV audio."""
-        headers = {"Content-Tyoe": "audio/wav"}
+        headers = {"Content-Type": "audio/wav"}
         async with self.session.post(
             self.stt_url, headers=headers, data=wav_data
         ) as response:
