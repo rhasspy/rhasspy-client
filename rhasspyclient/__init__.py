@@ -201,7 +201,7 @@ class RhasspyClient:
             self.tts_url, params=params, data=text
         ) as response:
             response.raise_for_status()
-            return await response.text()
+            return await response.read()
 
     # -------------------------------------------------------------------------
 
