@@ -189,7 +189,7 @@ class RhasspyClient:
 
     # -------------------------------------------------------------------------
 
-    async def text_to_speech(self, text: str, repeat: bool = False) -> str:
+    async def text_to_speech(self, text: str, repeat: bool = False) -> bytes:
         """
         Generate speech from text.
 
@@ -201,7 +201,7 @@ class RhasspyClient:
             self.tts_url, params=params, data=text
         ) as response:
             response.raise_for_status()
-            return await response.text()
+            return await response.read()
 
     # -------------------------------------------------------------------------
 
