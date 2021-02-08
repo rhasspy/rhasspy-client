@@ -29,9 +29,12 @@ async def main():
         "--debug", action="store_true", help="Print DEBUG messages to console"
     )
     parser.add_argument(
-        "--api-url",
-        default="http://localhost:12101/api",
-        help="URL of Rhasspy server (with /api)",
+        "--api-host",
+        default="localhost",
+        help="Host where the Rhasspy API can be found",
+    )
+    parser.add_argument(
+        "--api-port", default="12101", help="Port where Rhasspy is exposed"
     )
 
     sub_parsers = parser.add_subparsers()
@@ -105,7 +108,7 @@ async def main():
 
     # Begin client session
     async with aiohttp.ClientSession() as session:
-        client = RhasspyClient(args.api_url, session)
+        client = RhasspyClient(args.api_host, args.api_port, session)
 
         # Call sub-commmand
         await args.func(args, client)
