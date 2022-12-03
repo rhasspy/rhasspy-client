@@ -1,5 +1,5 @@
 black==22.10.0
-flake8==6.0.0
+flake8==5.0.4
 mypy==0.991
 pylint==2.15.7
 yamllint==1.28.0
