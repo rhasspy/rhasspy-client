@@ -64,10 +64,11 @@ class RhasspyClient:
             # Group sentences by intent
             sentences: Dict[str, List[str]] = defaultdict(list)
             for intent_name in parser.sections():
-                for key, value in parser[intent_name]:
+                for key in parser.options(intent_name):
+                    value = parser.get(intent_name, key)
                     if value is None:
                         # Sentence
-                        sentences[intent_name].append(value)
+                        sentences[intent_name].append(key)
                     else:
                         # Rule
                         sentences[intent_name].append(f"{key} = {value}")
