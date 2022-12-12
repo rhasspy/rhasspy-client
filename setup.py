@@ -1,13 +1,13 @@
 """Setup script for rhasspy-client package"""
 import setuptools
 
-with open("README.md", "r") as fh:
+with open("README.md", "rt", encoding="utf-8") as fh:
     long_description = fh.read()
 
-with open("requirements.txt", "r") as fh:
+with open("requirements.txt", "rt", encoding="utf-8") as fh:
     requirements = fh.read().splitlines()
 
-with open("VERSION", "r") as fh:
+with open("VERSION", "rt", encoding="utf-8") as fh:
     version = fh.read().strip()
 
 setuptools.setup(
@@ -28,5 +28,5 @@ setuptools.setup(
         "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
     ],
-    python_requires=">=3.6",
+    python_requires=">=3.7",
 )

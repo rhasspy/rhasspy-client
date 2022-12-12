@@ -1,7 +1,6 @@
 [MESSAGES CONTROL]
 disable=
   format,
-  abstract-class-little-used,
   abstract-method,
   cyclic-import,
   duplicate-code,
@@ -10,7 +9,6 @@ disable=
   inconsistent-return-statements,
   locally-disabled,
   not-context-manager,
-  redefined-variable-type,
   too-few-public-methods,
   too-many-arguments,
   too-many-branches,

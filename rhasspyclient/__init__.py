@@ -44,6 +44,8 @@ class RhasspyClient:
         self.lookup_url = urljoin(self.api_url, "lookup")
         self.version_url = urljoin(self.api_url, "version")
 
+        self.encoding = 'UTF-8'
+
         self.session = session
         assert self.session is not None, "ClientSession is required"
 
@@ -59,15 +61,16 @@ class RhasspyClient:
 
             # case sensitive
             parser.optionxform = str  # type: ignore
-            parser.read_string(await response.text())
+            parser.read_string(await response.text(encoding=self.encoding))
 
             # Group sentences by intent
             sentences: Dict[str, List[str]] = defaultdict(list)
             for intent_name in parser.sections():
-                for key, value in parser[intent_name]:
+                for key in parser.options(intent_name):
+                    value = parser.get(intent_name, key)
                     if value is None:
                         # Sentence
-                        sentences[intent_name].append(value)
+                        sentences[intent_name].append(key)
                     else:
                         # Rule
                         sentences[intent_name].append(f"{key} = {value}")
@@ -104,7 +107,7 @@ class RhasspyClient:
             # Group pronunciations by word
             pronunciations: Dict[str, Set[str]] = defaultdict(set)
             async for line_bytes in response.content:
-                line = line_bytes.decode().strip()
+                line = line_bytes.decode(encoding=self.encoding).strip()
 
                 # Skip blank lines
                 if len(line) == 0:
@@ -142,7 +145,7 @@ class RhasspyClient:
             params["no_cache"] = "true"
 
         async with self.session.post(self.train_url, params=params) as response:
-            text = await response.text()
+            text = await response.text(encoding=self.encoding)
 
             try:
                 response.raise_for_status()
@@ -159,7 +162,7 @@ class RhasspyClient:
         async with self.session.post(
             self.stt_url, headers=headers, data=wav_data
         ) as response:
-            text = await response.text()
+            text = await response.text(encoding=self.encoding)
 
             try:
                 response.raise_for_status()
@@ -185,7 +188,7 @@ class RhasspyClient:
             self.intent_url, params=params, data=text
         ) as response:
             response.raise_for_status()
-            return await response.json()
+            return await response.json(encoding=self.encoding)
 
     # -------------------------------------------------------------------------
 
@@ -208,7 +211,7 @@ class RhasspyClient:
     async def get_slots(self) -> Dict[str, List[str]]:
         """GET slots/values from server. Return values grouped by slot."""
         async with self.session.get(self.slots_url) as response:
-            return await response.json()
+            return await response.json(encoding=self.encoding)
 
     async def set_slots(self, slots: Dict[str, List[str]], overwrite=True) -> str:
         """
@@ -258,7 +261,7 @@ class RhasspyClient:
         """GET current profile. Include default settings when defaults is True."""
         params = {"layers": "all" if defaults else "profile"}
         async with self.session.get(self.profile_url, params=params) as response:
-            return await response.json()
+            return await response.json(encoding=self.encoding)
 
     async def set_profile(self, profile: Dict[str, List[str]]) -> str:
         """
@@ -283,7 +286,7 @@ class RhasspyClient:
             self.lookup_url, params=params, data=word
         ) as response:
             response.raise_for_status()
-            result = await response.json()
+            result = await response.json(encoding=self.encoding)
             return (result["in_dictionary"], result["pronunciations"])
 
     # -------------------------------------------------------------------------
@@ -295,4 +298,4 @@ class RhasspyClient:
             self.stt_url, params=params, data=raw_stream
         ) as response:
             response.raise_for_status()
-            return await response.text()
+            return await response.text(encoding=self.encoding)
